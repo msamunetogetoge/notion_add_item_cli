@@ -418,6 +418,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "inbox"
+version = "1.0.0"
+dependencies = [
+ "clap",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
 name = "indexmap"
 version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -530,17 +541,6 @@ dependencies = [
  "security-framework",
  "security-framework-sys",
  "tempfile",
-]
-
-[[package]]
-name = "notion_add_item_cli"
-version = "1.0.0"
-dependencies = [
- "clap",
- "reqwest",
- "serde",
- "serde_json",
- "tokio",
 ]
 
 [[package]]

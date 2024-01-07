@@ -10,6 +10,11 @@ struct Args {
     /// Name of the item to insert
     #[arg(short, long, value_name = "Name")]
     name: String,
+
+    /// Optional private flag.  
+    /// If -p given, "Private?" = Private else, "Private?"= Work
+    #[arg(short, long)]
+    private: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -20,12 +25,14 @@ struct Credentials {
 
 /**
  * GTDを行う時に、パッとnotionにアイデアやtodoを投稿する為のプログラム
- *  notion_add_item_cli -n todo とかで、notionのデータベースに"名前"がtodoのデータが作成される。
+ * inbox -n todo とかで、notionのデータベースに"名前"がtodoのデータが作成される。
  * credential.jsonを指示されたところに作る事。
  */
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
+
+    let private_status = if args.private { "Private" } else { "Work" };
 
     // 認証情報ファイルがあるかチェック
     let current_exe_path = env::current_exe()?;
@@ -61,6 +68,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
                             }
                         }
                     ]
+                },
+                "Private?": {
+                    "select": {
+                        "name": private_status
+                    }
                 }
             }
         }))

@@ -1,5 +1,5 @@
 [package]
-name = "notion_add_item_cli"
+name = "inbox"
 version = "1.0.0"
 edition = "2021"
 
