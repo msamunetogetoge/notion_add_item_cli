@@ -1,4 +1,6 @@
+use chrono::Local;
 use clap::Parser;
+
 use reqwest;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -15,6 +17,10 @@ struct Args {
     /// If -p given, "Private?" = Private else, "Private?"= Work
     #[arg(short, long)]
     private: bool,
+
+    /// Add task with today's date
+    #[arg(short, long)]
+    today: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -51,36 +57,61 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let database_id = credentials.database_id;
     let secret = credentials.secret;
 
+    let mut properties = serde_json::Map::new();
+    properties.insert(
+        "名前".to_string(),
+        json!({
+            "title": [
+                { "text": { "content": args.name } }
+            ]
+        }),
+    );
+    properties.insert(
+        "Private?".to_string(),
+        json!({
+            "select": { "name": private_status }
+        }),
+    );
+
+    // Add today's date if `-t` is used
+    if args.today {
+        let today = Local::today().format("%Y-%m-%d").to_string();
+        properties.insert(
+            "実施予定日".to_string(),
+            json!({
+                "date": { "start": today }
+            }),
+        );
+    }
+
+    let json_payload = json!({
+        "parent": { "database_id": database_id },
+        "properties": properties
+    });
+
     let client = reqwest::Client::new();
 
     let response = client
         .post("https://api.notion.com/v1/pages")
         .header("Authorization", format!("Bearer {}", secret))
         .header("Notion-Version", "2021-08-16")
-        .json(&json!({
-            "parent": { "database_id": database_id },
-            "properties": {
-                "名前": {
-                    "title": [
-                        {
-                            "text": {
-                                "content": args.name
-                            }
-                        }
-                    ]
-                },
-                "Private?": {
-                    "select": {
-                        "name": private_status
-                    }
-                }
-            }
-        }))
+        .json(&json_payload)
         .send()
         .await?;
 
-    let _response_json: Value = response.json().await?;
-    println!("successed!");
+    // let _response_json: Value = response.json().await?;
+    // println!("successed!");
+
+    if response.status().is_success() {
+        let response_json: Value = response.json().await?;
+        println!("Page successfully created: {:?}", response_json);
+    } else {
+        eprintln!("Failed to create page. Status: {:?}", response.status());
+        if let Ok(response_text) = response.text().await {
+            eprintln!("Response error: {}", response_text);
+        }
+        return Err("API request failed".into());
+    }
 
     Ok(())
 }
