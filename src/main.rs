@@ -186,21 +186,30 @@ async fn query_notion_database(
 
     let query = json!({
         "filter": {
-            "or": [
-                {
+            "and":[
+                {"or": [
+                    {
                     "property": "実施予定日",
                     "date": {
                         "equals": today
                     }
+                    },
+                    {
+                        "property": "実施予定日",
+                        "date": {
+                            "is_empty": true
+                        }
+                    },
+                    ]
                 },
                 {
-                    "property": "実施予定日",
-                    "date": {
-                        "is_empty": true
-                    }
+                "property": "進行中？",
+                "status":{
+                    "does_not_equal": "完了"
                 }
-        ]
-    }
+                }
+            ],
+        }
     });
 
     let query_param = [
