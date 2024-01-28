@@ -125,65 +125,6 @@ async fn query_notion_database(
 ) -> Result<Value, Box<dyn Error>> {
     let today = Local::now().format("%Y-%m-%d").to_string();
 
-    // let query = json!({
-    //     "filter": {
-    //         "or": [
-    //             {
-    //                 "and": [
-    //                     {
-    //                         "or": [
-    //                             {
-    //                                 "property": "実施予定日",
-    //                                 "date": {
-    //                                     "equals": today
-    //                                 }
-    //                             },
-    //                             {
-    //                                 "property": "実施予定日",
-    //                                 "date": {
-    //                                     "is_empty": true
-    //                                 }
-    //                             }
-    //                         ]
-    //                     },
-    //                     {
-    //                         "or": [
-    //                             {
-    //                                 "property": "進行中？",
-    //                                 "status": {
-    //                                     "equals": "進行中"
-    //                                 }
-    //                             },
-    //                             {
-    //                                 "property": "進行中？",
-    //                                 "status": {
-    //                                     "is_empty": true
-    //                                 }
-    //                             }
-    //                         ]
-    //                     }
-    //                 ]
-    //             },
-    //             {
-    //                 "or": [
-    //                     {
-    //                         "property": "タスク種別",
-    //                         "select": {
-    //                             "equals": "次にとるべき行動リスト"
-    //                         }
-    //                     },
-    //                     {
-    //                         "property": "タスク種別",
-    //                         "select": {
-    //                             "is_empty": true
-    //                         }
-    //                     }
-    //                 ]
-    //             }
-    //         ]
-    //     }
-    // });
-
     let query = json!({
         "filter": {
             "and":[
